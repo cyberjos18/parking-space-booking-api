@@ -169,11 +169,11 @@ return [
         /*
          * Application Service Providers...
          */
-        parkimetertest\Providers\AppServiceProvider::class,
-        parkimetertest\Providers\AuthServiceProvider::class,
-        // parkimetertest\Providers\BroadcastServiceProvider::class,
-        parkimetertest\Providers\EventServiceProvider::class,
-        parkimetertest\Providers\RouteServiceProvider::class,
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
 
     ],
 

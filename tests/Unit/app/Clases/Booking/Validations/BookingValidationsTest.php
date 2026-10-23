@@ -4,8 +4,8 @@ namespace Tests\Unit\app\Clases\Booking\Validations;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
-use parkimetertest\Clases\Booking\Persistencia\BookingPer;
-use parkimetertest\Clases\Booking\Validations\BookingValidations;
+use App\Clases\Booking\Persistencia\BookingPer;
+use App\Clases\Booking\Validations\BookingValidations;
 use Tests\TestCase;
 
 /**

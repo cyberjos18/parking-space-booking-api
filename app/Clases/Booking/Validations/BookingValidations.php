@@ -6,13 +6,13 @@
  * Time: 10:20 AM
  */
 
-namespace parkimetertest\Clases\Booking\Validations;
+namespace App\Clases\Booking\Validations;
 
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
-use parkimetertest\Clases\Booking\Persistencia\BookingPer;
-use parkimetertest\Models\Booking;
+use App\Clases\Booking\Persistencia\BookingPer;
+use App\Models\Booking;
 
 /**
  * Validation rules for the booking endpoints.

@@ -4,7 +4,7 @@
  * Created by Reliese Model.
  */
 
-namespace parkimetertest\Models;
+namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

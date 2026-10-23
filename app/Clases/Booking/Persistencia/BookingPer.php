@@ -6,11 +6,11 @@
  * Time: 10:15 AM
  */
 
-namespace parkimetertest\Clases\Booking\Persistencia;
+namespace App\Clases\Booking\Persistencia;
 
 
 use Illuminate\Support\Facades\Log;
-use parkimetertest\Models\Booking;
+use App\Models\Booking;
 
 /**
  * Database access for bookings.

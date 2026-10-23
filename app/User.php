@@ -1,6 +1,6 @@
 <?php
 
-namespace parkimetertest;
+namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;

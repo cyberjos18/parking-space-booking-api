@@ -1,12 +1,12 @@
 <?php
 
-namespace parkimetertest\Http\Controllers\Bookings;
+namespace App\Http\Controllers\Bookings;
 
 use Illuminate\Http\Request;
-use parkimetertest\Clases\Booking\Persistencia\BookingPer;
-use parkimetertest\Clases\Booking\Validations\BookingValidations;
-use parkimetertest\Http\Controllers\Controller;
-use parkimetertest\Models\Booking;
+use App\Clases\Booking\Persistencia\BookingPer;
+use App\Clases\Booking\Validations\BookingValidations;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
 
 
 /**

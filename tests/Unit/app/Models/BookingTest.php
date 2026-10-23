@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\app\Models;
 
-use parkimetertest\Models\Booking;
+use App\Models\Booking;
 use Tests\TestCase;
 
 /**
