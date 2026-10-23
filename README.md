@@ -1,5 +1,7 @@
 # Parking Space Booking API
 
+[![CI](https://github.com/cyberjos18/parking-space-booking-api/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberjos18/parking-space-booking-api/actions/workflows/ci.yml)
+
 A REST API for parking space reservations, built with Laravel 5.8.
 
 It started as a **technical test in October 2022** with two endpoints — create a booking and look one up. In **2026 I came back to it** and added the domain rules the original was missing, completed the booking lifecycle, and rebuilt the test suite so it is actually isolated. The section [*Original test vs. today*](#original-test-vs-today) lists exactly what changed.
@@ -193,6 +195,12 @@ Every test creates the rows it needs and rolls them back through `DatabaseTransa
 - **Lookup:** the booking returned with the dates in the API format, and `404` when it does not exist
 - **Listing:** filtering by space, narrowing to a window, no filters at all, and a malformed filter
 - **Cancellation:** the row removed, `404` for an unknown identifier, and the range becoming bookable again afterwards
+
+### Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the suite on GitHub Actions against a MariaDB 10.11 service container, on the PHP branch the test specified. The service is published on port 3307 with an empty root password, so CI uses the very same connection `phpunit.xml` declares and this README documents — there is no separate CI configuration to keep in sync.
+
+The workflow **runs the suite twice**. The original suite passed once and failed on the second run, because the tests shared rows and never rolled them back; running it twice keeps that regression from coming back unnoticed.
 
 ## Original test vs. today
 

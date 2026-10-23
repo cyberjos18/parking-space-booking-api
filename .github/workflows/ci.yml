@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Prepare database and run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # The service is published on 3307 with an empty root password so that CI
+    # reads the very same connection phpunit.xml declares and the README
+    # documents. PHPUnit's <server> entries always win over the environment,
+    # so matching them here is simpler than overriding them.
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+          MARIADB_DATABASE: parking_space_booking_test
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3307'
+      DB_DATABASE: parking_space_booking_test
+      DB_USERNAME: root
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      # The project targets the PHP branch the technical test specified.
+      - name: Set up PHP 7.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.3'
+          extensions: pdo_mysql, mbstring, bcmath, xml, ctype, tokenizer, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Install the MySQL client
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends mysql-client
+
+      - name: Cache the Composer packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ runner.os }}-php7.3-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php7.3-
+
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      - name: Install the dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      # Laravel reads .env on every boot and phpunit.xml turns warnings into
+      # exceptions, so the file has to exist even though the test connection
+      # comes from phpunit.xml.
+      - name: Create the .env file
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Wait for MariaDB to accept connections
+        run: |
+          for attempt in $(seq 1 60); do
+            if mysql --protocol=TCP -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" \
+              "$DB_DATABASE" -e "SELECT 1" >/dev/null 2>&1
+            then
+              echo "MariaDB is available after $attempt attempt(s)"
+              exit 0
+            fi
+            echo "MariaDB is not available yet (attempt $attempt/60)"
+            sleep 2
+          done
+          echo "MariaDB did not become available within 120 seconds" >&2
+          exit 1
+
+      # The bookings table is not created by migrations: the schema lives in
+      # this dump, which neither creates nor selects a database of its own.
+      - name: Import the schema and its fixtures
+        run: |
+          test -f database/model/bookings.sql
+          mysql --protocol=TCP -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" \
+            "$DB_DATABASE" < database/model/bookings.sql
+
+      - name: Show the versions in use
+        run: |
+          php -v
+          composer --version
+          mysql --protocol=TCP -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -e "SELECT VERSION()"
+
+      - name: Clear the cached Laravel configuration
+        run: php artisan config:clear
+
+      - name: Run the test suite
+        run: ./vendor/bin/phpunit
+
+      # The original suite passed once and failed on the second run, because
+      # the tests shared rows and never rolled them back. Running it twice
+      # keeps that regression from coming back unnoticed.
+      - name: Run the test suite again to prove it is repeatable
+        run: ./vendor/bin/phpunit
