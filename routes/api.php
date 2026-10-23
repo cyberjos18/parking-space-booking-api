@@ -13,5 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::post('bookings',['as'=>'bookings','uses'=>'Bookings\BookingsController@CreateBooking']);
-Route::get('bookings/{reserveId}',['as'=>'bookings','uses'=>'Bookings\BookingsController@BookingList']);
+Route::get('bookings', ['as' => 'bookings.index', 'uses' => 'Bookings\BookingsController@index']);
+Route::post('bookings', ['as' => 'bookings.store', 'uses' => 'Bookings\BookingsController@store']);
+Route::get('bookings/{reserveId}', ['as' => 'bookings.show', 'uses' => 'Bookings\BookingsController@show']);
+Route::delete('bookings/{reserveId}', ['as' => 'bookings.destroy', 'uses' => 'Bookings\BookingsController@destroy']);

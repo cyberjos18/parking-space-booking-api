@@ -7,11 +7,12 @@
 namespace parkimetertest\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Booking
- * 
+ *
  * @property int $id
  * @property string $reserveId
  * @property Carbon $date_beging_reservation
@@ -23,39 +24,80 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Booking extends Model
 {
-	protected $table = 'bookings';
-	public $incrementing = false;
-	public $timestamps = false;
+    /**
+     * Date format the API speaks, on input and on output.
+     * The database stores the usual Y-m-d H:i:s instead.
+     */
+    const API_DATE_FORMAT = 'd-m-Y H:i:s';
 
-	protected $casts = [
-		'id' => 'int',
-		'parking_id' => 'int'
-	];
+    protected $table = 'bookings';
+    public $timestamps = false;
 
-	protected $dates = [
-		'date_beging_reservation',
-		'date_ending_reservation'
-	];
+    protected $casts = [
+        'id' => 'int',
+        'parking_id' => 'int'
+    ];
 
-	protected $fillable = [
-		'reserveId',
-		'date_beging_reservation',
-		'date_ending_reservation',
-		'parking_id',
-		'vehicle_registration_number'
-	];
+    protected $dates = [
+        'date_beging_reservation',
+        'date_ending_reservation'
+    ];
 
-    public static function  ConvertFormatDateCarbon($date)
+    protected $fillable = [
+        'reserveId',
+        'date_beging_reservation',
+        'date_ending_reservation',
+        'parking_id',
+        'vehicle_registration_number'
+    ];
+
+    /**
+     * Bookings of a parking space whose time range overlaps the given one.
+     *
+     * Two ranges overlap when each one starts before the other ends. The
+     * comparison is strict, so a booking that starts exactly when another
+     * one ends is not an overlap and is allowed.
+     *
+     * @param  string  $begin  Database format (Y-m-d H:i:s)
+     * @param  string  $end    Database format (Y-m-d H:i:s)
+     */
+    public function scopeOverlapping(Builder $query, $parkingId, $begin, $end)
     {
-
-        $newDate=Carbon::createFromFormat('d-m-Y H:i:s',$date)->toDateTimeString();
-        return $newDate;
+        return $query->where('parking_id', '=', $parkingId)
+            ->where('date_beging_reservation', '<', $end)
+            ->where('date_ending_reservation', '>', $begin);
     }
 
-    public static function  ConvertFormatDateCarbonNotISO($date)
+    /**
+     * Turn a date coming from the API into the format the database expects.
+     *
+     * Returns null when the input does not match the API format so the
+     * caller can report it as a validation error. Carbon throws on a
+     * malformed date, and letting that exception escape would answer a bad
+     * request with a 500 instead of a 422.
+     *
+     * @return string|null
+     */
+    public static function toDatabaseDate($date)
     {
+        if (! is_string($date) || $date === '') {
+            return null;
+        }
 
-        $newDate=Carbon::parse($date)->format('d-m-Y H:i:s');
-        return $newDate;
+        try {
+            return Carbon::createFromFormat(self::API_DATE_FORMAT, $date)->toDateTimeString();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Turn a date stored in the database into the format the API returns.
+     *
+     * @return string
+     */
+    public static function toApiDate($date)
+    {
+        return Carbon::parse($date)->format(self::API_DATE_FORMAT);
     }
 }
