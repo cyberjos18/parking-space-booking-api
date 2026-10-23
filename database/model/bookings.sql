@@ -3,7 +3,7 @@
 Source Server         : Localhost (MariaDB)
 Source Server Version : 50505
 Source Host           : 127.0.0.1:3307
-Source Database       : parkimetertest
+Source Database       : parking_space_booking
 
 Target Server Type    : MYSQL
 Target Server Version : 50505

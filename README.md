@@ -1,4 +1,4 @@
-# Parking Booking API
+# Parking Space Booking API
 
 A REST API for parking space reservations, built with Laravel 5.8.
 
@@ -152,7 +152,7 @@ Point `DB_*` in `.env` at your database, create it, and import the schema. **The
 
 ```bash
 mysql -u <user> -p -e "CREATE DATABASE <database> DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-mysql -u <user> -p <database> < database/model/parkimetertest.sql
+mysql -u <user> -p <database> < database/model/bookings.sql
 ```
 
 `database/model/` also holds the MySQL Workbench diagram (`bookings.mwb`).
@@ -174,8 +174,8 @@ tests/
 The suite runs against **its own database**, configured in `phpunit.xml`, so it never writes to the one you develop against. Create it once:
 
 ```bash
-mysql -u root -P 3307 -e "CREATE DATABASE parkimetertest_test DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-mysql -u root -P 3307 parkimetertest_test < database/model/parkimetertest.sql
+mysql -u root -P 3307 -e "CREATE DATABASE parking_space_booking_test DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+mysql -u root -P 3307 parking_space_booking_test < database/model/bookings.sql
 ```
 
 ```bash
