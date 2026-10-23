@@ -29,5 +29,18 @@
         <server name="MAIL_DRIVER" value="array"/>
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
+
+        <!--
+            The suite runs against its own database so it never writes to the
+            one you develop against. Create it and import
+            database/model/parkimetertest.sql into it before running the
+            tests; every test rolls back its own writes afterwards.
+        -->
+        <server name="DB_CONNECTION" value="mysql"/>
+        <server name="DB_HOST" value="127.0.0.1"/>
+        <server name="DB_PORT" value="3307"/>
+        <server name="DB_DATABASE" value="parkimetertest_test"/>
+        <server name="DB_USERNAME" value="root"/>
+        <server name="DB_PASSWORD" value=""/>
     </php>
 </phpunit>
